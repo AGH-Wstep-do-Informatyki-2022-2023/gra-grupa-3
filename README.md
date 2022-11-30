@@ -22,7 +22,7 @@ ponieważ uznaliśmy, że będzie mieć ona następujące zalety:
 
 Zdecydowaliśmy się na Pythona 3. Uważamy, że ma kilka zalet, takich jak prostota i łatwość w pisaniu kodu. Zdejemy sobie sprawę z jego wad takich jak na przykład gorsza wydajność względem innych, szybszych języków jak C++, ale nie powinno mieć to większego znaczenia w naszym przypadku.
 
-### *** Grafika ***
+### Grafika 
 Celujemy w prostą do zrobienia grafikę ale jednocześnie dość ładną (bliżej jeszcze nie określoną), planowana przynajmniej lekka poprawa względem oryginału
 
 ### Linki:
