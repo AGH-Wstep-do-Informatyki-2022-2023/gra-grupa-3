@@ -24,8 +24,10 @@ Zdecydowaliśmy się na Pythona 3. Uważamy, że ma kilka zalet, takich jak pros
 
 ### ***Grafika*** 
 Celujemy w prostą do zrobienia grafikę ale jednocześnie dość ładną (bliżej jeszcze nie określoną), planowana przynajmniej lekka poprawa względem oryginału
-Propozycja:
-![Logo AstroPhase](/AstroPhase.png "AstroPhase")
+
+**Propozycja:**
+
+<img src="AstroPhase.png" alt="AstroPhase" style="width:100px;"/>
 
 ## **Linki:**
 
