@@ -101,7 +101,7 @@ class Alien:
         self.position = position
 
         self.goingDownLast = pygame.time.get_ticks()
-        self.goingDownCooldown = 4000
+        self.goingDownCooldown = 6000
 
         self.direction = 1
         self.sidewalkLast = pygame.time.get_ticks()
