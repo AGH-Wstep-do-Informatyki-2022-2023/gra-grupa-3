@@ -1,15 +1,15 @@
 import pygame
 import button
 
+
 class Game:
     screen = None
     aliens = []
     rockets = []
-    alienBullets=[]
+    alienBullets = []
     lost = False
 
     def __init__(self, width, height):
-        pygame.init()
         self.width = width
         self.height = height
         self.screen = pygame.display.set_mode((width, height))
@@ -25,9 +25,14 @@ class Game:
 
         while not done:
             if len(self.aliens) == 0:
-                self.displayText("VICTORY ACHIEVED")
+                self.displayText("VICTORY ACHIEVED", 600, 400)
+                self.displayText("Naciśnij ESCAPE aby powrócić do menu", 600, 600)
 
             pressed = pygame.key.get_pressed()
+            if pressed[pygame.K_ESCAPE] and len(self.aliens) == 0:  # konczenie gry escapem po wygraniu
+                done = True
+            if pressed[pygame.K_BACKSPACE]:  # szybkie czyszcenie alienów backspacem
+                self.aliens.clear()
             if pressed[pygame.K_LEFT]:
                 hero.x -= 2 if hero.x > 20 else 0
             elif pressed[pygame.K_RIGHT]:
@@ -75,7 +80,6 @@ class Game:
                 #    self.alienAttackLast = self.now
                 #    self.alienBullets.append(AlienBullet(self, alien.x, alien.y))
 
-
             for rocket in self.rockets:
                 rocket.draw()
 
@@ -84,11 +88,14 @@ class Game:
 
             if not self.lost: hero.draw()
 
-    def displayText(self, text):
+    def displayText(self, text, x=None, y=None):
+        if x is None and y is None:
+            x = self.width
+            y = self.height
         pygame.font.init()
         font = pygame.font.SysFont('Arial', 50)
         textsurface = font.render(text, False, (180, 220, 62))
-        self.screen.blit(textsurface, (self.width/2.5, self.height/2.5))
+        self.screen.blit(textsurface, (x/2.5, y/2.5))
 
 
 class Alien:
@@ -252,54 +259,48 @@ class Rocket:
 
 
 if __name__ == '__main__':
-    game = Game(800, 800) # !! tu tworząc obiekt podajemy wymiary okna gry !!
+    pygame.init()  # create game window
+    SCREEN_WIDTH = 1200
+    SCREEN_HEIGHT = 800
 
-pygame.init()  # create game window
-SCREEN_WIDTH = 800
-SCREEN_HEIGHT = 800
+    screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+    pygame.display.set_caption("Main Menu")
 
-screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
-pygame.display.set_caption("Main Menu")
+    game_paused = False
+    menu_state = "main"
+    font = pygame.font.SysFont("arialblack", 40)
+    TEXT_COL = (255, 255, 255)
 
-game_paused = False
-menu_state = "main"
-font = pygame.font.SysFont("arialblack", 40)
-TEXT_COL = (255, 255, 255)
-bg_img = pygame.image.load("images/background.png").convert_alpha()
-resume_img = pygame.image.load("images/button_resume.png").convert_alpha()
-options_img = pygame.image.load("images/button_options.png").convert_alpha()
-quit_img = pygame.image.load("images/button_quit.png").convert_alpha()
-video_img = pygame.image.load('images/button_video.png').convert_alpha()
-audio_img = pygame.image.load('images/button_audio.png').convert_alpha()
-keys_img = pygame.image.load('images/button_keys.png').convert_alpha()
-back_img = pygame.image.load('images/button_back.png').convert_alpha()
+    bg_img = pygame.image.load("images/background.png").convert_alpha()
 
-resume_button = button.Button(200, 400, resume_img, 1)
-options_button = button.Button(450, 550, options_img, 1)
-quit_button = button.Button(450, 650, quit_img, 1)
-video_button = button.Button(450, 550, video_img, 1)
-audio_button = button.Button(450, 550, audio_img, 1)
-keys_button = button.Button(246, 325, keys_img, 1)
-back_button = button.Button(332, 450, back_img, 1)
+    resume_img = pygame.image.load("images/button_resume.png").convert_alpha()
+    options_img = pygame.image.load("images/button_options.png").convert_alpha()
+    quit_img = pygame.image.load("images/button_quit.png").convert_alpha()
+    video_img = pygame.image.load('images/button_video.png').convert_alpha()
+    audio_img = pygame.image.load('images/button_audio.png').convert_alpha()
+    keys_img = pygame.image.load('images/button_keys.png').convert_alpha()
+    back_img = pygame.image.load('images/button_back.png').convert_alpha()
 
-
-def draw_text(text, font, text_col, x, y):
-    img = font.render(text, True, text_col)
-    screen.blit(img, (x, y))
+    resume_button = button.Button(200, 400, resume_img, 1)
+    options_button = button.Button(450, 550, options_img, 1)
+    quit_button = button.Button(450, 650, quit_img, 1)
+    video_button = button.Button(450, 550, video_img, 1)
+    audio_button = button.Button(450, 550, audio_img, 1)
+    keys_button = button.Button(246, 325, keys_img, 1)
+    back_button = button.Button(332, 450, back_img, 1)
 
 
-run = True
-while run:
+    def draw_text(text, font, text_col, x, y):
+        img = font.render(text, True, text_col)
+        screen.blit(img, (x, y))
 
-    screen.fill((52, 78, 91))
 
-    # check if game is paused
-    if game_paused:
-        # check menu state
+    run = True
+    while run:
+        screen.blit(bg_img, bg_img.get_rect())
         if menu_state == "main":
-            # draw pause screen buttons
             if resume_button.draw(screen):
-                game_paused = False
+                game = Game(1200, 800)  # !! tu tworząc obiekt podajemy wymiary okna gry !!
             if options_button.draw(screen):
                 menu_state = "options"
             if quit_button.draw(screen):
@@ -315,16 +316,11 @@ while run:
                 print("Change Key Bindings")
             if back_button.draw(screen):
                 menu_state = "main"
-    else:
-        draw_text("Naciśnij SPACE aby kontynuować", font, TEXT_COL, 40, 400)
 
-for event in pygame.event.get():
-    if event.type == pygame.KEYDOWN:
-        if event.key == pygame.K_SPACE:
-            game_paused = True
-    if event.type == pygame.QUIT:
-        run = False
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                run = False
 
-pygame.display.update()
+        pygame.display.update()
 
-pygame.quit()
+    pygame.quit()
