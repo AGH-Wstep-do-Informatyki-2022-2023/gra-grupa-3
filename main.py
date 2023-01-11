@@ -1,6 +1,10 @@
 import pygame
 import button
 
+# to jest nasza super giera
+# a te komentarze symulują konflikt Wiktora i Michała
+# bla bla
+# foo 1 foo 2 foo 3
 
 class Game:
     screen = None
