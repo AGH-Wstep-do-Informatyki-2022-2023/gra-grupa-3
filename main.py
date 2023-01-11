@@ -328,3 +328,7 @@ if __name__ == '__main__':
         pygame.display.update()
 
     pygame.quit()
+    
+# mam nadzieje że mogę dać tutaj kod...
+# czy te linijki są wolne?
+# hmmm....
