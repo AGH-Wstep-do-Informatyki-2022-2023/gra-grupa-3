@@ -328,3 +328,7 @@ if __name__ == '__main__':
         pygame.display.update()
 
     pygame.quit()
+    
+#Linijka dla konflikut
+#Konflikt!
+#Koniec linijek dla konfliktu
