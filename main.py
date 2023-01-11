@@ -1,6 +1,9 @@
 import pygame
 import button
 
+#Linijka dla konflikut
+#Konflikt!
+#Koniec linijek dla konfliktu
 
 class Game:
     screen = None
