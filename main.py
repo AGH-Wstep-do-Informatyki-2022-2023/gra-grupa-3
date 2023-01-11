@@ -1,10 +1,6 @@
 import pygame
 import button
 
-# to jest nasza super giera
-# a te komentarze symulują konflikt Wiktora i Michała
-# bla bla
-# foo 1 foo 2 foo 3
 
 class Game:
     screen = None
@@ -329,6 +325,3 @@ if __name__ == '__main__':
 
     pygame.quit()
     
-#Linijka dla konflikut
-#Konflikt!
-#Koniec linijek dla konfliktu
