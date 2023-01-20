@@ -55,38 +55,45 @@ class Game:
             #self.alienAttackCooldown = 10
 
             attack = 0
-            for alien in self.aliens:
-                alien.draw()
-                alien.checkCollision(self)
-                if (alien.y > height-(height/6)):
-                    self.lost = True
-                    self.displayText("YOU DIED")
+            for alienList in self.aliens:
+                for alien in alienList:
+                    alien.draw()
+                    alien.checkCollision(self)
+                    if (alien.y > height-(height/6)):
+                        self.lost = True
+                        self.displayText("YOU DIED")
 
-                if (alien.x) > (self.width - (self.width/20)):
-                    for tabalien in self.aliens:
-                        if tabalien.row == alien.row:
-                            tabalien.direction = 0
+                    if (alien.x) > (self.width - (self.width/20)):
+                        for tabAlien in alienList:
+                            tabAlien.direction = 0
                             alien.direction = 0
+                    elif (alien.x) < (self.width/30):
+                        for tabAlien in alienList:
+                            tabAlien.direction = -1   
+                            alien.direction = -1
 
-                elif (alien.x) < (self.width/30):
-                    alien.x += (alien.sidewalkStep *2)
-                    for tabalien in self.aliens:
-                        if tabalien.row == alien.row:
-                            tabalien.direction = 1
-                            alien.direction = 1
+                        """ 
+                        for tabalien in self.aliens:
+                            if tabalien.row == alien.row:
+                                tabalien.direction = 0
+                                alien.direction = 0
+                        """
+                    """
+                    elif (alien.x) < (self.width/30):
+                        alien.x += (alien.sidewalkStep *2)
+                        for tabalien in self.aliens:
+                            if tabalien.row == alien.row:
+                                tabalien.direction = 1
+                                alien.direction = 1
+                    """
 
-                #self.now = pygame.time.get_ticks()
-                #if self.now - self.alienAttackLast >= self.alienAttackCooldown:
-                #    self.alienAttackLast = self.now
-                #    self.alienBullets.append(AlienBullet(self, alien.x, alien.y))
+                for rocket in self.rockets:
+                    rocket.draw()
 
-            for rocket in self.rockets:
-                rocket.draw()
+                for bullet in self.alienBullets:
+                    bullet.draw()
 
-            for bullet in self.alienBullets:
-                bullet.draw()
-
-            if not self.lost: hero.draw()
+                if not self.lost: hero.draw()
 
     def displayText(self, text, x=None, y=None):
         if x is None and y is None:
@@ -99,13 +106,13 @@ class Game:
 
 
 class Alien:
-    def __init__(self, game, x, y, row, position):
+    def __init__(self, game, x, y, row):
         self.x = x
         self.game = game
         self.y = y
         self.size = 30
         self.row = row
-        self.position = position
+        #self.position = position
 
         self.goingDownLast = pygame.time.get_ticks()
         self.goingDownCooldown = 5000
@@ -150,7 +157,7 @@ class Alien:
                     rocket.y < self.y + self.size and
                     rocket.y > self.y - self.size):
                 game.rockets.remove(rocket)
-                game.aliens.remove(self)
+                game.aliens[self.row].remove(self)
 
 class AlienRed(Alien):
     def draw(self):
@@ -189,18 +196,40 @@ class Hero:
 
 class Generator:
     def __init__(self, game):
+        self.game = game
         margin = 30  # margines
-        width = 50  # marginesy alienów
+        self.width = 50  # marginesy alienów
 
-        gameMarginStart = margin + int(game.width / 6)
-        gameMarginStop = int(game.width - (game.width / 6) - margin)
+        self.gameMarginStart = margin + int(game.width / 6)
+        self.gameMarginStop = int(game.width - (game.width / 6) - margin)
 
         start=margin + int(game.height / 12)
         stop=start + int(game.height / 16)
         step=int(game.height / 20)
 
-        row = 0
+    def getAlienType(alienType: str = "Blue") -> object:
+        types = {
+            "Blue": AlienBlue,
+            "Red": AlienRed,
+            "Green": AlienGreen,
+        }
+        return types[alienType]()
 
+
+    def generateLine(self,alien,start,stop,step):
+        i = 0
+        for y in range(start, stop, step):
+            generator = []
+            for x in range(self.gameMarginStart, self.gameMarginStop, self.width):
+                # wymyślić jak im zadawać parametry!
+                #  self.getAlienType(alienType = "Blue")
+                generator.append(AlienRed(self.game, x, y, i))
+            self.game.aliens.append(generator)
+            i += 1
+
+
+
+        """
         for y in range(start, stop, step): # 2 row
             row += 1
             pos = 0
@@ -228,6 +257,8 @@ class Generator:
                 pos += 1
                 game.aliens.append(AlienBlue(game, x, y,row,pos))
 
+        """
+
 
 class Rocket:
     def __init__(self, game, x, y):
@@ -238,24 +269,7 @@ class Rocket:
     def draw(self):
         rocketImage = pygame.image.load('rocket.png')
         self.game.screen.blit(rocketImage, (self.x, self.y))
-        # to był placeholder
-        # pygame.draw.rect(self.game.screen, 
-        #                  (254, 52, 110),
-        #                  pygame.Rect(self.x, self.y, 2, 4))
         self.y -= 8
-
-# planowana, nie wprowadzona
-# class AlienBullet:
-#     def __init__(self, game, x, y):
-#         self.x = x
-#         self.y = y
-#         self.game = game
-
-#     def draw(self):
-#         pygame.draw.rect(self.game.screen,
-#                          (255, 255, 255),
-#                          pygame.Rect(self.x, self.y, 1, 6))
-#         self.y += 3
 
 
 if __name__ == '__main__':
