@@ -77,21 +77,6 @@ class Game:
                             tabAlien.direction = -1   
                             alien.direction = -1
 
-                        """ 
-                        for tabalien in self.aliens:
-                            if tabalien.row == alien.row:
-                                tabalien.direction = 0
-                                alien.direction = 0
-                        """
-                    """
-                    elif (alien.x) < (self.width/30):
-                        alien.x += (alien.sidewalkStep *2)
-                        for tabalien in self.aliens:
-                            if tabalien.row == alien.row:
-                                tabalien.direction = 1
-                                alien.direction = 1
-                    """
-
                 for rocket in self.rockets:
                     rocket.draw()
 
@@ -244,40 +229,6 @@ class Generator:
                 generator.append(self.getAlienType(x, y,self.i, alienType=alien))
             self.game.aliens.append(generator)
             self.i += 1
-    
-    
-
-
-        """
-        for y in range(start, stop, step): # 2 row
-            row += 1
-            pos = 0
-            for x in range(gameMarginStart, gameMarginStop, width): # 15 pos
-                pos += 1
-                game.aliens.append(AlienRed(game, x, y,row,pos))
-
-        start = stop + int(game.height / 26)
-        stop = start + int(game.height / 7)
-
-        for y in range(start, stop, step): # 3 row
-            row += 1
-            pos = 0
-            for x in range(gameMarginStart, gameMarginStop, width): # 15 pos
-                pos += 1
-                game.aliens.append(AlienGreen(game, x, y,row,pos))
-
-        start = stop + int(game.height / 80)
-        stop = start + int(game.height / 20)
-
-        for y in range(start, stop, step): # 1 row
-            row += 1
-            pos = 0
-            for x in range(gameMarginStart, gameMarginStop, width): # 15 pos
-                pos += 1
-                game.aliens.append(AlienBlue(game, x, y,row,pos))
-
-        """
-
 
 class Rocket:
     def __init__(self, game, x, y):
