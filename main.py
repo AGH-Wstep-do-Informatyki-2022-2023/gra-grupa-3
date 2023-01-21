@@ -8,6 +8,7 @@ class Game:
     rockets = []
     alienBullets = []
     lost = False
+    score = 0
 
     def __init__(self, width, height):
         self.width = width
@@ -15,6 +16,8 @@ class Game:
         self.screen = pygame.display.set_mode((width, height))
         self.clock = pygame.time.Clock()
         done = False
+
+        
 
         hero = Hero(self, width / 2, height - 20)
         generator = Generator(self)
@@ -24,6 +27,8 @@ class Game:
         lastShootCooldown = 560
 
         while not done:
+            self.displayScore()
+
             if len(self.aliens) == 0:
                 self.displayText("VICTORY ACHIEVED", 600, 400)
                 self.displayText("Naciśnij ESCAPE aby powrócić do menu", 600, 600)
@@ -104,6 +109,12 @@ class Game:
         textsurface = font.render(text, False, (180, 220, 62))
         self.screen.blit(textsurface, (x/2.5, y/2.5))
 
+    def displayScore(self):
+        pygame.font.init()
+        font = pygame.font.SysFont('Arial', 24)
+        textsurface = font.render("Score: "+str(self.score), False, (180, 220, 62))
+        self.screen.blit(textsurface, (10,10))
+
 
 class Alien:
     def __init__(self, game, x, y, row):
@@ -156,6 +167,7 @@ class Alien:
                     rocket.x > self.x - self.size and
                     rocket.y < self.y + self.size and
                     rocket.y > self.y - self.size):
+                self.game.score += 1
                 game.rockets.remove(rocket)
                 game.aliens[self.row].remove(self)
 
@@ -206,27 +218,34 @@ class Generator:
         start=margin + int(game.height / 12)
         stop=start + int(game.height / 16)
         step=int(game.height / 20)
+        self.generateLine(start,stop,step,"Red")
 
-    def getAlienType(alienType: str = "Blue") -> object:
+        start = stop + int(game.height / 26)
+        stop = start + int(game.height / 7)
+        self.generateLine(start,stop,step,"Green")
+
+        start = stop + int(game.height / 80)
+        stop = start + int(game.height / 20)
+        self.generateLine(start,stop,step,"Blue")
+
+    def getAlienType(self, x, y, row, alienType: str = "Blue") -> object:
         types = {
             "Blue": AlienBlue,
             "Red": AlienRed,
             "Green": AlienGreen,
         }
-        return types[alienType]()
+        return types[alienType](self.game, x, y,row)
 
-
-    def generateLine(self,alien,start,stop,step):
-        i = 0
+    i = 0
+    def generateLine(self,start,stop,step,alien):
         for y in range(start, stop, step):
             generator = []
             for x in range(self.gameMarginStart, self.gameMarginStop, self.width):
-                # wymyślić jak im zadawać parametry!
-                #  self.getAlienType(alienType = "Blue")
-                generator.append(AlienRed(self.game, x, y, i))
+                generator.append(self.getAlienType(x, y,self.i, alienType=alien))
             self.game.aliens.append(generator)
-            i += 1
-
+            self.i += 1
+    
+    
 
 
         """
