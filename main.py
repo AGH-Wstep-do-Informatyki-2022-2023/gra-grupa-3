@@ -8,6 +8,7 @@ class Game:
     rockets = []
     alienBullets = []
     lost = False
+    score = 0
 
     def __init__(self, width, height):
         self.width = width
@@ -15,6 +16,8 @@ class Game:
         self.screen = pygame.display.set_mode((width, height))
         self.clock = pygame.time.Clock()
         done = False
+
+        
 
         hero = Hero(self, width / 2, height - 20)
         generator = Generator(self)
@@ -24,6 +27,8 @@ class Game:
         lastShootCooldown = 560
 
         while not done:
+            self.displayScore()
+
             if len(self.aliens) == 0:
                 self.displayText("VICTORY ACHIEVED", 600, 400)
                 self.displayText("Naciśnij ESCAPE aby powrócić do menu", 600, 600)
@@ -55,38 +60,30 @@ class Game:
             #self.alienAttackCooldown = 10
 
             attack = 0
-            for alien in self.aliens:
-                alien.draw()
-                alien.checkCollision(self)
-                if (alien.y > height-(height/6)):
-                    self.lost = True
-                    self.displayText("YOU DIED")
+            for alienList in self.aliens:
+                for alien in alienList:
+                    alien.draw()
+                    alien.checkCollision(self)
+                    if (alien.y > height-(height/6)):
+                        self.lost = True
+                        self.displayText("YOU DIED")
 
-                if (alien.x) > (self.width - (self.width/20)):
-                    for tabalien in self.aliens:
-                        if tabalien.row == alien.row:
-                            tabalien.direction = 0
+                    if (alien.x) > (self.width - (self.width/20)):
+                        for tabAlien in alienList:
+                            tabAlien.direction = 0
                             alien.direction = 0
+                    elif (alien.x) < (self.width/30):
+                        for tabAlien in alienList:
+                            tabAlien.direction = -1   
+                            alien.direction = -1
 
-                elif (alien.x) < (self.width/30):
-                    alien.x += (alien.sidewalkStep *2)
-                    for tabalien in self.aliens:
-                        if tabalien.row == alien.row:
-                            tabalien.direction = 1
-                            alien.direction = 1
+                for rocket in self.rockets:
+                    rocket.draw()
 
-                #self.now = pygame.time.get_ticks()
-                #if self.now - self.alienAttackLast >= self.alienAttackCooldown:
-                #    self.alienAttackLast = self.now
-                #    self.alienBullets.append(AlienBullet(self, alien.x, alien.y))
+                for bullet in self.alienBullets:
+                    bullet.draw()
 
-            for rocket in self.rockets:
-                rocket.draw()
-
-            for bullet in self.alienBullets:
-                bullet.draw()
-
-            if not self.lost: hero.draw()
+                if not self.lost: hero.draw()
 
     def displayText(self, text, x=None, y=None):
         if x is None and y is None:
@@ -97,15 +94,21 @@ class Game:
         textsurface = font.render(text, False, (180, 220, 62))
         self.screen.blit(textsurface, (x/2.5, y/2.5))
 
+    def displayScore(self):
+        pygame.font.init()
+        font = pygame.font.SysFont('Arial', 24)
+        textsurface = font.render("Score: "+str(self.score), False, (180, 220, 62))
+        self.screen.blit(textsurface, (10,10))
+
 
 class Alien:
-    def __init__(self, game, x, y, row, position):
+    def __init__(self, game, x, y, row):
         self.x = x
         self.game = game
         self.y = y
         self.size = 30
         self.row = row
-        self.position = position
+        #self.position = position
 
         self.goingDownLast = pygame.time.get_ticks()
         self.goingDownCooldown = 5000
@@ -149,8 +152,9 @@ class Alien:
                     rocket.x > self.x - self.size and
                     rocket.y < self.y + self.size and
                     rocket.y > self.y - self.size):
+                self.game.score += 1
                 game.rockets.remove(rocket)
-                game.aliens.remove(self)
+                game.aliens[self.row].remove(self)
 
 class AlienRed(Alien):
     def draw(self):
@@ -189,45 +193,42 @@ class Hero:
 
 class Generator:
     def __init__(self, game):
+        self.game = game
         margin = 30  # margines
-        width = 50  # marginesy alienów
+        self.width = 50  # marginesy alienów
 
-        gameMarginStart = margin + int(game.width / 6)
-        gameMarginStop = int(game.width - (game.width / 6) - margin)
+        self.gameMarginStart = margin + int(game.width / 6)
+        self.gameMarginStop = int(game.width - (game.width / 6) - margin)
 
         start=margin + int(game.height / 12)
         stop=start + int(game.height / 16)
         step=int(game.height / 20)
-
-        row = 0
-
-        for y in range(start, stop, step): # 2 row
-            row += 1
-            pos = 0
-            for x in range(gameMarginStart, gameMarginStop, width): # 15 pos
-                pos += 1
-                game.aliens.append(AlienRed(game, x, y,row,pos))
+        self.generateLine(start,stop,step,"Red")
 
         start = stop + int(game.height / 26)
         stop = start + int(game.height / 7)
-
-        for y in range(start, stop, step): # 3 row
-            row += 1
-            pos = 0
-            for x in range(gameMarginStart, gameMarginStop, width): # 15 pos
-                pos += 1
-                game.aliens.append(AlienGreen(game, x, y,row,pos))
+        self.generateLine(start,stop,step,"Green")
 
         start = stop + int(game.height / 80)
         stop = start + int(game.height / 20)
+        self.generateLine(start,stop,step,"Blue")
 
-        for y in range(start, stop, step): # 1 row
-            row += 1
-            pos = 0
-            for x in range(gameMarginStart, gameMarginStop, width): # 15 pos
-                pos += 1
-                game.aliens.append(AlienBlue(game, x, y,row,pos))
+    def getAlienType(self, x, y, row, alienType: str = "Blue") -> object:
+        types = {
+            "Blue": AlienBlue,
+            "Red": AlienRed,
+            "Green": AlienGreen,
+        }
+        return types[alienType](self.game, x, y,row)
 
+    i = 0
+    def generateLine(self,start,stop,step,alien):
+        for y in range(start, stop, step):
+            generator = []
+            for x in range(self.gameMarginStart, self.gameMarginStop, self.width):
+                generator.append(self.getAlienType(x, y,self.i, alienType=alien))
+            self.game.aliens.append(generator)
+            self.i += 1
 
 class Rocket:
     def __init__(self, game, x, y):
@@ -238,24 +239,7 @@ class Rocket:
     def draw(self):
         rocketImage = pygame.image.load('rocket.png')
         self.game.screen.blit(rocketImage, (self.x, self.y))
-        # to był placeholder
-        # pygame.draw.rect(self.game.screen, 
-        #                  (254, 52, 110),
-        #                  pygame.Rect(self.x, self.y, 2, 4))
         self.y -= 8
-
-# planowana, nie wprowadzona
-# class AlienBullet:
-#     def __init__(self, game, x, y):
-#         self.x = x
-#         self.y = y
-#         self.game = game
-
-#     def draw(self):
-#         pygame.draw.rect(self.game.screen,
-#                          (255, 255, 255),
-#                          pygame.Rect(self.x, self.y, 1, 6))
-#         self.y += 3
 
 
 if __name__ == '__main__':
